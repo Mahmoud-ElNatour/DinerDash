@@ -174,16 +174,17 @@ def process_payment(order_id):
         order.customer.total_spent += order.final_total
         
         # Update membership level
+        from models import MembershipLevel
         if order.customer.total_spent >= 1000:
-            order.customer.membership = 'VIP'
+            order.customer.membership = MembershipLevel.VIP
         elif order.customer.total_spent >= 500:
-            order.customer.membership = 'Gold'
+            order.customer.membership = MembershipLevel.GOLD
         
         db.session.commit()
     
     # Free up table if dine-in
-    if order.order_type == 'DineIn' and order.table:
-        order.table.status = 'Available'
+    if order.order_type == OrderType.DINEIN and order.table:
+        order.table.status = TableStatus.AVAILABLE
         db.session.commit()
     
     flash('Payment processed successfully!', 'success')

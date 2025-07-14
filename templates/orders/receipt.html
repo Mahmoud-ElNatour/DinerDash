@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+
+{% block title %}Receipt - Order #{{ order.id }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-success text-white text-center">
+                    <h3><i class="fas fa-check-circle"></i> Payment Successful</h3>
+                </div>
+                <div class="card-body">
+                    <!-- Receipt Header -->
+                    <div class="text-center mb-4">
+                        <h2>DINER POS</h2>
+                        <p class="text-muted">Receipt #{{ order.id }}</p>
+                        <hr>
+                    </div>
+                    
+                    <!-- Order Details -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <strong>Order Details:</strong><br>
+                            <small class="text-muted">
+                                Date: {{ order.date.strftime('%Y-%m-%d %H:%M:%S') }}<br>
+                                Type: {{ order.order_type.value }}<br>
+                                {% if order.table %}
+                                    Table: {{ order.table.number }}<br>
+                                {% endif %}
+                                {% if order.customer %}
+                                    Customer: {{ order.customer.name }}<br>
+                                {% endif %}
+                                Cashier: {{ order.user.full_name }}
+                            </small>
+                        </div>
+                        <div class="col-md-6 text-end">
+                            <strong>Payment Details:</strong><br>
+                            <small class="text-muted">
+                                Method: {{ order.payment_method }}<br>
+                                {% if order.bill %}
+                                    Paid: {{ order.bill.payment_date.strftime('%Y-%m-%d %H:%M:%S') }}<br>
+                                    Currency: {{ order.bill.currency }}
+                                {% endif %}
+                            </small>
+                        </div>
+                    </div>
+                    
+                    <!-- Items Table -->
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th>Qty</th>
+                                <th>Price</th>
+                                <th class="text-end">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in order.items %}
+                            <tr>
+                                <td>{{ item.item.name }}</td>
+                                <td>{{ item.quantity }}</td>
+                                <td>${{ "%.2f"|format(item.price) }}</td>
+                                <td class="text-end">${{ "%.2f"|format(item.total) }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    
+                    <!-- Totals -->
+                    <div class="row">
+                        <div class="col-md-6"></div>
+                        <div class="col-md-6">
+                            <table class="table table-sm">
+                                <tr>
+                                    <td><strong>Subtotal:</strong></td>
+                                    <td class="text-end">${{ "%.2f"|format(order.total) }}</td>
+                                </tr>
+                                {% if order.discount > 0 %}
+                                <tr>
+                                    <td><strong>Discount:</strong></td>
+                                    <td class="text-end text-success">-${{ "%.2f"|format(order.discount) }}</td>
+                                </tr>
+                                {% endif %}
+                                {% if order.bill and order.bill.tax_applied %}
+                                <tr>
+                                    <td><strong>Tax:</strong></td>
+                                    <td class="text-end">${{ "%.2f"|format(order.bill.tax_applied) }}</td>
+                                </tr>
+                                {% endif %}
+                                <tr class="table-active">
+                                    <td><strong>Total Paid:</strong></td>
+                                    <td class="text-end"><strong>${{ "%.2f"|format(order.final_total) }}</strong></td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Customer Points -->
+                    {% if order.customer %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-star"></i> 
+                        <strong>Loyalty Points:</strong> 
+                        {{ order.customer.points }} points
+                        ({{ order.customer.membership.value }} Member)
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Footer -->
+                    <div class="text-center mt-4">
+                        <p class="text-muted">
+                            <small>Thank you for your visit!<br>
+                            Visit us again soon.</small>
+                        </p>
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div class="text-center mt-4">
+                        <button class="btn btn-primary" onclick="window.print()">
+                            <i class="fas fa-print"></i> Print Receipt
+                        </button>
+                        {% if order.bill and order.bill.receipt_path %}
+                        <a href="{{ url_for('static', filename='receipts/' + order.bill.receipt_path.split('/')[-1]) }}" 
+                           class="btn btn-outline-primary" target="_blank">
+                            <i class="fas fa-file-pdf"></i> Download PDF
+                        </a>
+                        {% endif %}
+                        <a href="/orders/new" class="btn btn-success">
+                            <i class="fas fa-plus"></i> New Order
+                        </a>
+                        <a href="/orders/" class="btn btn-secondary">
+                            <i class="fas fa-list"></i> View All Orders
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+@media print {
+    .btn, .navbar, .card-header {
+        display: none !important;
+    }
+    .card {
+        border: none !important;
+        box-shadow: none !important;
+    }
+    .container {
+        margin: 0 !important;
+        padding: 0 !important;
+        max-width: none !important;
+    }
+}
+</style>
+{% endblock %}
