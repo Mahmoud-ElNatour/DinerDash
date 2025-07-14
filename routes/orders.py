@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session, jsonify
 from flask_login import login_required, current_user
-from models import SalesOrder, SalesOrderItem, Item, Category, Table, Customer, CustomerAddress, Settings
+from models import SalesOrder, SalesOrderItem, Item, Category, Table, Customer, CustomerAddress, Settings, TableStatus
 from app import db
 from datetime import datetime
 from decimal import Decimal
@@ -19,7 +19,7 @@ def orders_list():
 def new_order():
     categories = Category.query.all()
     items = Item.query.filter_by(is_active=True).all()
-    tables = Table.query.filter_by(status='Available').all()
+    tables = Table.query.filter_by(status=TableStatus.AVAILABLE).all()
     customers = Customer.query.all()
     
     return render_template('orders/new_order.html', 

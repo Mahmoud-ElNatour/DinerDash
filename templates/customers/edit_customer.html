@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Customer{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">
+                        <i class="fas fa-user-edit me-2"></i>
+                        Edit Customer
+                    </h4>
+                    <a href="{{ url_for('customers.customer_detail', customer_id=customer.id) }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-1"></i>
+                        Back
+                    </a>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="name" class="form-label">
+                                        <i class="fas fa-user me-1"></i>
+                                        Full Name *
+                                    </label>
+                                    <input type="text" class="form-control" id="name" name="name" value="{{ customer.name }}" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="phone" class="form-label">
+                                        <i class="fas fa-phone me-1"></i>
+                                        Phone Number
+                                    </label>
+                                    <input type="tel" class="form-control" id="phone" name="phone" value="{{ customer.phone or '' }}">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="email" class="form-label">
+                                <i class="fas fa-envelope me-1"></i>
+                                Email Address
+                            </label>
+                            <input type="email" class="form-control" id="email" name="email" value="{{ customer.email or '' }}">
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="points" class="form-label">
+                                        <i class="fas fa-star me-1"></i>
+                                        Points
+                                    </label>
+                                    <input type="number" class="form-control" id="points" name="points" value="{{ customer.points }}" min="0" readonly>
+                                    <div class="form-text">Use the points adjustment feature to modify points</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="membership" class="form-label">
+                                        <i class="fas fa-crown me-1"></i>
+                                        Membership Level
+                                    </label>
+                                    <select class="form-select" id="membership" name="membership">
+                                        <option value="Silver" {% if customer.membership.value == 'Silver' %}selected{% endif %}>Silver</option>
+                                        <option value="Gold" {% if customer.membership.value == 'Gold' %}selected{% endif %}>Gold</option>
+                                        <option value="VIP" {% if customer.membership.value == 'VIP' %}selected{% endif %}>VIP</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">
+                                <i class="fas fa-dollar-sign me-1"></i>
+                                Total Spent
+                            </label>
+                            <input type="text" class="form-control" value="${{ "%.2f"|format(customer.total_spent) }}" readonly>
+                        </div>
+                        
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <button type="button" class="btn btn-outline-secondary me-md-2" onclick="window.location.href='{{ url_for('customers.customer_detail', customer_id=customer.id) }}'">
+                                <i class="fas fa-times me-1"></i>
+                                Cancel
+                            </button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i>
+                                Save Changes
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.card-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-bottom: none;
+}
+.card-header h4 {
+    color: white;
+}
+.form-label {
+    font-weight: 600;
+    color: var(--bs-body-color);
+}
+.form-control:focus, .form-select:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+</style>
+{% endblock %}

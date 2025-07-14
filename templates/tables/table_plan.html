@@ -1,0 +1,332 @@
+{% extends "base.html" %}
+
+{% block title %}Table Management{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">
+                        <i class="fas fa-table me-2"></i>
+                        Table Management
+                    </h4>
+                    <div>
+                        <button class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#newTableModal">
+                            <i class="fas fa-plus me-1"></i>
+                            Add Table
+                        </button>
+                        <button class="btn btn-outline-secondary" onclick="refreshTables()">
+                            <i class="fas fa-sync-alt me-1"></i>
+                            Refresh
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <!-- Table Legend -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="d-flex justify-content-center flex-wrap gap-3">
+                                <div class="legend-item">
+                                    <div class="table-preview table-available"></div>
+                                    <small>Available</small>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="table-preview table-occupied"></div>
+                                    <small>Occupied</small>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="table-preview table-reserved"></div>
+                                    <small>Reserved</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Table Grid -->
+                    <div class="table-grid" id="tableGrid">
+                        {% for table in tables %}
+                        <div class="table-item {% if table.status.value == 'Available' %}table-available{% elif table.status.value == 'Occupied' %}table-occupied{% else %}table-reserved{% endif %}" 
+                             data-table-id="{{ table.id }}" 
+                             data-table-number="{{ table.number }}"
+                             data-table-seats="{{ table.seats }}"
+                             data-table-status="{{ table.status.value }}">
+                            <div class="table-number">{{ table.number }}</div>
+                            <div class="table-seats">
+                                <i class="fas fa-users"></i>
+                                {{ table.seats }}
+                            </div>
+                            <div class="table-status">{{ table.status.value }}</div>
+                            <div class="table-actions">
+                                <button class="btn btn-sm btn-outline-primary" onclick="editTable({{ table.id }})">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger" onclick="deleteTable({{ table.id }})">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Table Modal -->
+<div class="modal fade" id="newTableModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New Table</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ url_for('tables.new_table') }}" method="POST">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="number" class="form-label">Table Number</label>
+                        <input type="text" class="form-control" id="number" name="number" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="seats" class="form-label">Number of Seats</label>
+                        <input type="number" class="form-control" id="seats" name="seats" min="1" max="20" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add Table</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Table Modal -->
+<div class="modal fade" id="editTableModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Table</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="editTableForm" method="POST">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="edit_number" class="form-label">Table Number</label>
+                        <input type="text" class="form-control" id="edit_number" name="number" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit_seats" class="form-label">Number of Seats</label>
+                        <input type="number" class="form-control" id="edit_seats" name="seats" min="1" max="20" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit_status" class="form-label">Status</label>
+                        <select class="form-select" id="edit_status" name="status">
+                            <option value="Available">Available</option>
+                            <option value="Occupied">Occupied</option>
+                            <option value="Reserved">Reserved</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Update Table</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+.card-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-bottom: none;
+}
+
+.card-header h4 {
+    color: white;
+}
+
+.legend-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.table-preview {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    border: 2px solid #ddd;
+}
+
+.table-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1.5rem;
+    padding: 1rem;
+}
+
+.table-item {
+    background: white;
+    border: 2px solid #ddd;
+    border-radius: 12px;
+    padding: 1rem;
+    text-align: center;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
+}
+
+.table-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.table-available {
+    border-color: #28a745;
+    background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+}
+
+.table-occupied {
+    border-color: #dc3545;
+    background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+}
+
+.table-reserved {
+    border-color: #ffc107;
+    background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+}
+
+.table-number {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 0.5rem;
+}
+
+.table-seats {
+    color: #666;
+    margin-bottom: 0.5rem;
+}
+
+.table-status {
+    font-size: 0.8rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    color: #666;
+    margin-bottom: 0.5rem;
+}
+
+.table-actions {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.table-actions .btn {
+    padding: 0.25rem 0.5rem;
+}
+
+@media (max-width: 768px) {
+    .table-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 1rem;
+    }
+}
+</style>
+
+<script>
+function refreshTables() {
+    fetch('/tables/api/tables')
+        .then(response => response.json())
+        .then(tables => {
+            const grid = document.getElementById('tableGrid');
+            grid.innerHTML = '';
+            
+            tables.forEach(table => {
+                const tableElement = createTableElement(table);
+                grid.appendChild(tableElement);
+            });
+        })
+        .catch(error => {
+            console.error('Error refreshing tables:', error);
+        });
+}
+
+function createTableElement(table) {
+    const div = document.createElement('div');
+    div.className = `table-item table-${table.status.toLowerCase()}`;
+    div.setAttribute('data-table-id', table.id);
+    div.setAttribute('data-table-number', table.number);
+    div.setAttribute('data-table-seats', table.seats);
+    div.setAttribute('data-table-status', table.status);
+    
+    div.innerHTML = `
+        <div class="table-number">${table.number}</div>
+        <div class="table-seats">
+            <i class="fas fa-users"></i>
+            ${table.seats}
+        </div>
+        <div class="table-status">${table.status}</div>
+        <div class="table-actions">
+            <button class="btn btn-sm btn-outline-primary" onclick="editTable(${table.id})">
+                <i class="fas fa-edit"></i>
+            </button>
+            <button class="btn btn-sm btn-outline-danger" onclick="deleteTable(${table.id})">
+                <i class="fas fa-trash"></i>
+            </button>
+        </div>
+    `;
+    
+    return div;
+}
+
+function editTable(tableId) {
+    const tableElement = document.querySelector(`[data-table-id="${tableId}"]`);
+    if (!tableElement) return;
+    
+    const number = tableElement.getAttribute('data-table-number');
+    const seats = tableElement.getAttribute('data-table-seats');
+    const status = tableElement.getAttribute('data-table-status');
+    
+    document.getElementById('edit_number').value = number;
+    document.getElementById('edit_seats').value = seats;
+    document.getElementById('edit_status').value = status;
+    document.getElementById('editTableForm').action = `/tables/${tableId}/edit`;
+    
+    const modal = new bootstrap.Modal(document.getElementById('editTableModal'));
+    modal.show();
+}
+
+function deleteTable(tableId) {
+    if (confirm('Are you sure you want to delete this table?')) {
+        fetch(`/tables/${tableId}/delete`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => {
+            if (response.ok) {
+                refreshTables();
+            } else {
+                alert('Error deleting table');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error deleting table');
+        });
+    }
+}
+
+// Auto-refresh every 30 seconds
+setInterval(refreshTables, 30000);
+</script>
+{% endblock %}

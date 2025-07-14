@@ -52,6 +52,7 @@ from routes.inventory import inventory_bp
 from routes.customers import customers_bp
 from routes.settings import settings_bp
 from routes.reports import reports_bp
+from routes.tables import tables_bp
 
 app.register_blueprint(auth_bp, url_prefix='/auth')
 app.register_blueprint(orders_bp, url_prefix='/orders')
@@ -59,6 +60,7 @@ app.register_blueprint(inventory_bp, url_prefix='/inventory')
 app.register_blueprint(customers_bp, url_prefix='/customers')
 app.register_blueprint(settings_bp, url_prefix='/settings')
 app.register_blueprint(reports_bp, url_prefix='/reports')
+app.register_blueprint(tables_bp, url_prefix='/tables')
 
 # Main dashboard route
 @app.route('/')
@@ -84,7 +86,7 @@ with app.app_context():
     db.create_all()
     
     # Create default admin user if not exists
-    from models import User, Settings, UserRole, Language
+    from models import User, Settings, UserRole, Language, Table, TableStatus, Category, Item
     from werkzeug.security import generate_password_hash
     
     if not User.query.filter_by(username='admin').first():
@@ -106,5 +108,29 @@ with app.app_context():
             receipt_note='Thank you for your visit!'
         )
         db.session.add(default_settings)
+    
+    # Create sample tables if none exist
+    if not Table.query.first():
+        sample_tables = [
+            Table(number='1', seats=2, status=TableStatus.AVAILABLE),
+            Table(number='2', seats=4, status=TableStatus.AVAILABLE),
+            Table(number='3', seats=6, status=TableStatus.AVAILABLE),
+            Table(number='4', seats=2, status=TableStatus.AVAILABLE),
+            Table(number='5', seats=8, status=TableStatus.AVAILABLE),
+            Table(number='6', seats=4, status=TableStatus.AVAILABLE),
+        ]
+        for table in sample_tables:
+            db.session.add(table)
+    
+    # Create sample categories if none exist
+    if not Category.query.first():
+        sample_categories = [
+            Category(name='Appetizers'),
+            Category(name='Main Dishes'),
+            Category(name='Desserts'),
+            Category(name='Beverages'),
+        ]
+        for category in sample_categories:
+            db.session.add(category)
     
     db.session.commit()

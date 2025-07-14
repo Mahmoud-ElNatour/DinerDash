@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
 from flask_login import login_required
-from models import Customer, CustomerAddress
+from models import Customer, CustomerAddress, MembershipLevel
 from app import db
 from utils.helpers import requires_role
 
@@ -20,9 +20,9 @@ def new_customer():
             name=request.form['name'],
             phone=request.form['phone'],
             email=request.form['email'],
-            points=0,
+            points=int(request.form.get('points', 0)),
             total_spent=0,
-            membership='Silver'
+            membership=MembershipLevel[request.form.get('membership', 'SILVER')]
         )
         db.session.add(customer)
         db.session.commit()

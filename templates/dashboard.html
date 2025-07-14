@@ -13,7 +13,7 @@
 <div class="row g-4">
     <!-- Quick Actions -->
     <div class="col-md-3">
-        <div class="card h-100">
+        <div class="card h-100 dashboard-card">
             <div class="card-body text-center">
                 <i class="fas fa-plus fa-3x text-primary mb-3"></i>
                 <h5>New Order</h5>
@@ -26,7 +26,7 @@
     </div>
     
     <div class="col-md-3">
-        <div class="card h-100">
+        <div class="card h-100 dashboard-card">
             <div class="card-body text-center">
                 <i class="fas fa-list fa-3x text-info mb-3"></i>
                 <h5>View Orders</h5>
@@ -39,7 +39,7 @@
     </div>
     
     <div class="col-md-3">
-        <div class="card h-100">
+        <div class="card h-100 dashboard-card">
             <div class="card-body text-center">
                 <i class="fas fa-users fa-3x text-success mb-3"></i>
                 <h5>Customers</h5>
@@ -51,9 +51,22 @@
         </div>
     </div>
     
+    <div class="col-md-3">
+        <div class="card h-100 dashboard-card">
+            <div class="card-body text-center">
+                <i class="fas fa-table fa-3x text-secondary mb-3"></i>
+                <h5>Tables</h5>
+                <p class="text-muted">Manage restaurant tables</p>
+                <a href="{{ url_for('tables.table_plan') }}" class="btn btn-secondary">
+                    <i class="fas fa-table"></i> View Tables
+                </a>
+            </div>
+        </div>
+    </div>
+    
     {% if current_user.role.value in ['Admin', 'Supervisor'] %}
     <div class="col-md-3">
-        <div class="card h-100">
+        <div class="card h-100 dashboard-card">
             <div class="card-body text-center">
                 <i class="fas fa-boxes fa-3x text-warning mb-3"></i>
                 <h5>Inventory</h5>

@@ -1,0 +1,195 @@
+{% extends "base.html" %}
+
+{% block title %}Customer Details{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">
+                        <i class="fas fa-user me-2"></i>
+                        Customer Details
+                    </h4>
+                    <div>
+                        <a href="{{ url_for('customers.edit_customer', customer_id=customer.id) }}" class="btn btn-outline-primary">
+                            <i class="fas fa-edit me-1"></i>
+                            Edit
+                        </a>
+                        <a href="{{ url_for('customers.customers') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-1"></i>
+                            Back
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="text-muted">Name</h6>
+                            <p class="h5">{{ customer.name }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-muted">Membership Level</h6>
+                            <p>
+                                {% if customer.membership.value == 'VIP' %}
+                                    <span class="badge bg-warning">
+                                        <i class="fas fa-crown me-1"></i>
+                                        VIP
+                                    </span>
+                                {% elif customer.membership.value == 'Gold' %}
+                                    <span class="badge bg-success">
+                                        <i class="fas fa-medal me-1"></i>
+                                        Gold
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-secondary">
+                                        <i class="fas fa-star me-1"></i>
+                                        Silver
+                                    </span>
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <h6 class="text-muted">Phone</h6>
+                            <p>{{ customer.phone or 'Not provided' }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-muted">Email</h6>
+                            <p>{{ customer.email or 'Not provided' }}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <h6 class="text-muted">Loyalty Points</h6>
+                            <p class="h5 text-primary">{{ customer.points }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-muted">Total Spent</h6>
+                            <p class="h5 text-success">${{ "%.2f"|format(customer.total_spent) }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('orders.new_order') }}?customer_id={{ customer.id }}" class="btn btn-primary">
+                            <i class="fas fa-plus me-1"></i>
+                            New Order
+                        </a>
+                        <a href="{{ url_for('customers.customer_addresses', customer_id=customer.id) }}" class="btn btn-outline-info">
+                            <i class="fas fa-map-marker-alt me-1"></i>
+                            Manage Addresses
+                        </a>
+                        <button class="btn btn-outline-warning" data-bs-toggle="modal" data-bs-target="#pointsModal">
+                            <i class="fas fa-star me-1"></i>
+                            Adjust Points
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Order History</h5>
+                </div>
+                <div class="card-body">
+                    {% if customer.orders %}
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Order ID</th>
+                                        <th>Date</th>
+                                        <th>Type</th>
+                                        <th>Total</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for order in customer.orders %}
+                                    <tr>
+                                        <td>#{{ order.id }}</td>
+                                        <td>{{ order.date.strftime('%Y-%m-%d %H:%M') }}</td>
+                                        <td>{{ order.order_type.value }}</td>
+                                        <td>${{ "%.2f"|format(order.final_total) }}</td>
+                                        <td>
+                                            {% if order.payment_method %}
+                                                <span class="badge bg-success">Completed</span>
+                                            {% else %}
+                                                <span class="badge bg-warning">Pending</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center text-muted py-4">
+                            <i class="fas fa-shopping-cart fa-3x mb-3"></i>
+                            <p>No orders yet</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Points Adjustment Modal -->
+<div class="modal fade" id="pointsModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Adjust Points</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ url_for('customers.adjust_points', customer_id=customer.id) }}" method="POST">
+                <div class="modal-body">
+                    <p>Current Points: <strong>{{ customer.points }}</strong></p>
+                    <div class="mb-3">
+                        <label for="adjustment" class="form-label">Points Adjustment</label>
+                        <input type="number" class="form-control" id="adjustment" name="adjustment" required>
+                        <div class="form-text">Enter positive number to add points, negative to subtract</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="reason" class="form-label">Reason</label>
+                        <input type="text" class="form-control" id="reason" name="reason" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-warning">Adjust Points</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+.card-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-bottom: none;
+}
+.card-header h4, .card-header h5 {
+    color: white;
+}
+</style>
+{% endblock %}
