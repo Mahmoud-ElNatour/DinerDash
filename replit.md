@@ -33,18 +33,21 @@ Preferred communication style: Simple, everyday language.
 ## Key Components
 
 ### Authentication & Authorization
-- **Replit Auth Integration**: Secure OpenID Connect authentication via Replit
-- OAuth2 flow with PKCE for enhanced security
-- Session management with Flask-Dance and server-side storage
+- **Username/Password Authentication**: Traditional login system with Flask-Login
+- Password hashing with Werkzeug security utilities
 - Role-based access control with decorator functions
 - User roles: Admin (full access), Supervisor (limited admin), Waiter (order management)
-- Automatic user creation on first login with default Waiter role
+- Default admin account: username=admin, password=admin123
+- Session management with Flask sessions
 
 ### Order Management System
 - Multi-type order support (dine-in with table assignment, takeaway, delivery)
+- **Enhanced Table Ordering**: Split-screen interface with menu selection and cart management
 - Real-time cart management with JavaScript
+- Order status tracking (Pending, Confirmed, Paid, Cancelled)
 - Order confirmation and payment processing
 - Receipt generation with PDF export capability
+- Automatic table status updates (Available/Occupied)
 
 ### Inventory Management
 - Item categorization and barcode support
@@ -82,12 +85,21 @@ Preferred communication style: Simple, everyday language.
 5. Reports show inventory status and movement history
 
 ### User Authentication Flow
-1. Users are redirected to Replit's OAuth login page
-2. After successful authentication, users are redirected back to the app
-3. User information is stored in the database with POS-specific fields
-4. Role-based permissions are enforced on routes using @require_login decorator
-5. Session management maintains user state via Flask-Dance
-6. Logout clears session and redirects to Replit's end session endpoint
+1. Users enter username/password on login page
+2. Credentials are validated against database
+3. User sessions are managed with Flask-Login
+4. Role-based permissions are enforced on routes using @login_required decorator
+5. Session management maintains user state
+6. Logout clears session and redirects to login page
+
+### Enhanced Table Management Flow
+1. Users click on table in table plan to open split-screen ordering interface
+2. Left side shows selected items with real-time total calculation
+3. Right side shows categorized menu with search functionality
+4. Click menu items to add to cart, adjust quantities as needed
+5. Confirm button creates order and marks table as occupied
+6. Pay button processes payment and frees up table
+7. Order status automatically updates throughout the process
 
 ## External Dependencies
 
@@ -95,10 +107,8 @@ Preferred communication style: Simple, everyday language.
 - Flask: Web framework
 - SQLAlchemy: Database ORM
 - Flask-Login: User session management
-- Flask-Dance: OAuth2 authentication with Replit
 - Werkzeug: Security utilities
 - ReportLab: PDF generation for receipts
-- PyJWT: JWT token handling for OAuth
 
 ### Frontend Dependencies
 - Bootstrap 5: UI framework
@@ -125,13 +135,13 @@ Preferred communication style: Simple, everyday language.
 ├── models.py           # Database models
 ├── translations.py     # Multi-language support
 ├── routes/             # Blueprint modules
-│   ├── auth.py         # Legacy user management (now /admin)
+│   ├── auth.py         # User authentication
 │   ├── orders.py       # Order management
 │   ├── customers.py    # Customer management
 │   ├── inventory.py    # Inventory management
 │   ├── reports.py      # Reporting system
-│   └── settings.py     # System settings
-├── replit_auth.py      # Replit OAuth authentication blueprint
+│   ├── settings.py     # System settings
+│   └── tables.py       # Enhanced table management
 ├── templates/          # Jinja2 templates
 ├── static/             # CSS, JS, images
 ├── utils/              # Helper functions
@@ -140,13 +150,11 @@ Preferred communication style: Simple, everyday language.
 ```
 
 ### Security Considerations
-- OAuth2 with PKCE for secure authentication
-- Replit's OpenID Connect for identity verification
+- Password hashing with Werkzeug
 - CSRF protection through Flask-WTF
 - Role-based access control
 - SQL injection protection through SQLAlchemy ORM
-- Secure session management with server-side storage
-- Automatic token refresh handling
+- Secure session management
 
 ### Performance Optimizations
 - Database connection pooling

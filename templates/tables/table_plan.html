@@ -51,14 +51,15 @@
                              data-table-id="{{ table.id }}" 
                              data-table-number="{{ table.number }}"
                              data-table-seats="{{ table.seats }}"
-                             data-table-status="{{ table.status.value }}">
+                             data-table-status="{{ table.status.value }}"
+                             onclick="openTableOrder({{ table.id }})">
                             <div class="table-number">{{ table.number }}</div>
                             <div class="table-seats">
                                 <i class="fas fa-users"></i>
                                 {{ table.seats }}
                             </div>
                             <div class="table-status">{{ table.status.value }}</div>
-                            <div class="table-actions">
+                            <div class="table-actions" onclick="event.stopPropagation()">
                                 <button class="btn btn-sm btn-outline-primary" onclick="editTable({{ table.id }})">
                                     <i class="fas fa-edit"></i>
                                 </button>
@@ -257,6 +258,11 @@ function refreshTables() {
         .catch(error => {
             console.error('Error refreshing tables:', error);
         });
+}
+
+// Function to open table order interface
+function openTableOrder(tableId) {
+    window.location.href = `/tables/order/${tableId}`;
 }
 
 function createTableElement(table) {
