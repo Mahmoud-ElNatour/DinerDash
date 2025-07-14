@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to Diner POS</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center align-items-center min-vh-100">
+            <div class="col-md-6">
+                <div class="card shadow-lg">
+                    <div class="card-header bg-primary text-white text-center">
+                        <h2><i class="fas fa-utensils"></i> Diner POS System</h2>
+                    </div>
+                    <div class="card-body text-center">
+                        <h4 class="mb-4">Welcome to the Professional Point of Sale System</h4>
+                        <p class="text-muted mb-4">
+                            Manage your restaurant operations with our comprehensive POS system featuring:
+                        </p>
+                        
+                        <div class="row text-start mb-4">
+                            <div class="col-md-6">
+                                <ul class="list-unstyled">
+                                    <li><i class="fas fa-check text-success me-2"></i> Order Management</li>
+                                    <li><i class="fas fa-check text-success me-2"></i> Inventory Tracking</li>
+                                    <li><i class="fas fa-check text-success me-2"></i> Customer Management</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <ul class="list-unstyled">
+                                    <li><i class="fas fa-check text-success me-2"></i> Table Management</li>
+                                    <li><i class="fas fa-check text-success me-2"></i> Payment Processing</li>
+                                    <li><i class="fas fa-check text-success me-2"></i> Reports & Analytics</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid">
+                            <a href="{{ url_for('replit_auth.login') }}" class="btn btn-primary btn-lg">
+                                <i class="fas fa-sign-in-alt"></i> Sign In to Continue
+                            </a>
+                        </div>
+                        
+                        <div class="mt-4">
+                            <small class="text-muted">
+                                Sign in with your Replit account to access the POS system
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

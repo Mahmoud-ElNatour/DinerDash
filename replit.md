@@ -33,10 +33,12 @@ Preferred communication style: Simple, everyday language.
 ## Key Components
 
 ### Authentication & Authorization
-- Flask-Login for session management
+- **Replit Auth Integration**: Secure OpenID Connect authentication via Replit
+- OAuth2 flow with PKCE for enhanced security
+- Session management with Flask-Dance and server-side storage
 - Role-based access control with decorator functions
-- Password hashing with Werkzeug security utilities
 - User roles: Admin (full access), Supervisor (limited admin), Waiter (order management)
+- Automatic user creation on first login with default Waiter role
 
 ### Order Management System
 - Multi-type order support (dine-in with table assignment, takeaway, delivery)
@@ -80,19 +82,23 @@ Preferred communication style: Simple, everyday language.
 5. Reports show inventory status and movement history
 
 ### User Authentication Flow
-1. Users log in with username/password
-2. Role-based permissions are enforced on routes
-3. Session management maintains user state
-4. Logout clears session and redirects to login
+1. Users are redirected to Replit's OAuth login page
+2. After successful authentication, users are redirected back to the app
+3. User information is stored in the database with POS-specific fields
+4. Role-based permissions are enforced on routes using @require_login decorator
+5. Session management maintains user state via Flask-Dance
+6. Logout clears session and redirects to Replit's end session endpoint
 
 ## External Dependencies
 
 ### Python Packages
 - Flask: Web framework
 - SQLAlchemy: Database ORM
-- Flask-Login: User authentication
+- Flask-Login: User session management
+- Flask-Dance: OAuth2 authentication with Replit
 - Werkzeug: Security utilities
 - ReportLab: PDF generation for receipts
+- PyJWT: JWT token handling for OAuth
 
 ### Frontend Dependencies
 - Bootstrap 5: UI framework
@@ -119,12 +125,13 @@ Preferred communication style: Simple, everyday language.
 ├── models.py           # Database models
 ├── translations.py     # Multi-language support
 ├── routes/             # Blueprint modules
-│   ├── auth.py         # Authentication routes
+│   ├── auth.py         # Legacy user management (now /admin)
 │   ├── orders.py       # Order management
 │   ├── customers.py    # Customer management
 │   ├── inventory.py    # Inventory management
 │   ├── reports.py      # Reporting system
 │   └── settings.py     # System settings
+├── replit_auth.py      # Replit OAuth authentication blueprint
 ├── templates/          # Jinja2 templates
 ├── static/             # CSS, JS, images
 ├── utils/              # Helper functions
@@ -133,11 +140,13 @@ Preferred communication style: Simple, everyday language.
 ```
 
 ### Security Considerations
-- Password hashing with Werkzeug
+- OAuth2 with PKCE for secure authentication
+- Replit's OpenID Connect for identity verification
 - CSRF protection through Flask-WTF
 - Role-based access control
 - SQL injection protection through SQLAlchemy ORM
-- Secure session management
+- Secure session management with server-side storage
+- Automatic token refresh handling
 
 ### Performance Optimizations
 - Database connection pooling

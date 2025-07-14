@@ -2,7 +2,8 @@ from app import db
 from flask_login import UserMixin
 from datetime import datetime
 from enum import Enum
-from sqlalchemy import Numeric
+from sqlalchemy import Numeric, UniqueConstraint
+from flask_dance.consumer.storage.sqla import OAuthConsumerMixin
 
 class UserRole(Enum):
     ADMIN = 'Admin'
@@ -31,19 +32,42 @@ class Language(Enum):
     EN = 'EN'
     AR = 'AR'
 
+# (IMPORTANT) This table is mandatory for Replit Auth, don't drop it.
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
     
-    id = db.Column(db.Integer, primary_key=True)
-    full_name = db.Column(db.String(100), nullable=False)
-    username = db.Column(db.String(50), unique=True, nullable=False)
-    password_hash = db.Column(db.String(256), nullable=False)
-    role = db.Column(db.Enum(UserRole), nullable=False)
+    id = db.Column(db.String, primary_key=True)  # Changed to String for Replit Auth
+    email = db.Column(db.String, unique=True, nullable=True)
+    first_name = db.Column(db.String, nullable=True)
+    last_name = db.Column(db.String, nullable=True)
+    profile_image_url = db.Column(db.String, nullable=True)
+    
+    # POS-specific fields
+    full_name = db.Column(db.String(100), nullable=True)  # Made nullable for migration
+    username = db.Column(db.String(50), unique=True, nullable=True)  # Made nullable for migration
+    password_hash = db.Column(db.String(256), nullable=True)  # Made nullable for migration
+    role = db.Column(db.Enum(UserRole), nullable=True, default=UserRole.WAITER)  # Made nullable for migration
     is_active = db.Column(db.Boolean, default=True)
+    
+    created_at = db.Column(db.DateTime, default=datetime.now)
+    updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)
     
     # Relationships
     orders = db.relationship('SalesOrder', backref='user', lazy=True)
     inventory_logs = db.relationship('InventoryLog', backref='user', lazy=True)
+
+# (IMPORTANT) This table is mandatory for Replit Auth, don't drop it.
+class OAuth(OAuthConsumerMixin, db.Model):
+    user_id = db.Column(db.String, db.ForeignKey(User.id))
+    browser_session_key = db.Column(db.String, nullable=False)
+    user = db.relationship(User)
+
+    __table_args__ = (UniqueConstraint(
+        'user_id',
+        'browser_session_key',
+        'provider',
+        name='uq_user_browser_session_key_provider',
+    ),)
 
 class Customer(db.Model):
     __tablename__ = 'customers'

@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session, jsonify
-from flask_login import login_required, current_user
+from flask_login import current_user
+from replit_auth import require_login
 from models import SalesOrder, SalesOrderItem, Item, Category, Table, Customer, CustomerAddress, Settings, TableStatus, OrderType
 from app import db
 from datetime import datetime
@@ -9,13 +10,13 @@ from utils.pdf_generator import generate_receipt
 orders_bp = Blueprint('orders', __name__)
 
 @orders_bp.route('/')
-@login_required
+@require_login
 def orders_list():
     orders = SalesOrder.query.order_by(SalesOrder.date.desc()).all()
     return render_template('orders/orders_list.html', orders=orders)
 
 @orders_bp.route('/new')
-@login_required
+@require_login
 def new_order():
     categories = Category.query.all()
     items = Item.query.filter_by(is_active=True).all()
@@ -29,7 +30,7 @@ def new_order():
                          customers=customers)
 
 @orders_bp.route('/create', methods=['POST'])
-@login_required
+@require_login
 def create_order():
     try:
         # Get form data
@@ -118,19 +119,19 @@ def create_order():
         return redirect(url_for('orders.new_order'))
 
 @orders_bp.route('/confirmation/<int:order_id>')
-@login_required
+@require_login
 def order_confirmation(order_id):
     order = SalesOrder.query.get_or_404(order_id)
     return render_template('orders/order_confirmation.html', order=order)
 
 @orders_bp.route('/payment/<int:order_id>')
-@login_required
+@require_login
 def payment(order_id):
     order = SalesOrder.query.get_or_404(order_id)
     return render_template('orders/payment.html', order=order)
 
 @orders_bp.route('/process_payment/<int:order_id>', methods=['POST'])
-@login_required
+@require_login
 def process_payment(order_id):
     from models import Bill
     from utils.pdf_generator import generate_receipt
@@ -191,13 +192,13 @@ def process_payment(order_id):
     return redirect(url_for('orders.receipt', order_id=order.id))
 
 @orders_bp.route('/receipt/<int:order_id>')
-@login_required
+@require_login
 def receipt(order_id):
     order = SalesOrder.query.get_or_404(order_id)
     return render_template('orders/receipt.html', order=order)
 
 @orders_bp.route('/get_item_details/<int:item_id>')
-@login_required
+@require_login
 def get_item_details(item_id):
     item = Item.query.get_or_404(item_id)
     return jsonify({
