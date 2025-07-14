@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+
+{% block title %}Inventory - Diner POS{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1><i class="fas fa-boxes"></i> Inventory Management</h1>
+            <div>
+                <a href="{{ url_for('inventory.new_item') }}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Add Item
+                </a>
+                <a href="{{ url_for('inventory.categories') }}" class="btn btn-secondary">
+                    <i class="fas fa-tags"></i> Categories
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Low Stock Alerts -->
+{% if low_stock_items %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="alert alert-warning">
+            <h5><i class="fas fa-exclamation-triangle"></i> Low Stock Alert</h5>
+            <p>The following items are running low on stock:</p>
+            <ul class="mb-0">
+                {% for item in low_stock_items %}
+                <li>{{ item.name }} - Only {{ item.quantity }} left (Alert at {{ item.low_stock_alert }})</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Inventory Items -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5>Inventory Items</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Category</th>
+                                <th>Barcode</th>
+                                <th>Unit Price</th>
+                                <th>Cost Price</th>
+                                <th>Quantity</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in items %}
+                            <tr>
+                                <td>{{ item.name }}</td>
+                                <td>{{ item.category.name }}</td>
+                                <td>{{ item.barcode or '-' }}</td>
+                                <td>${{ "%.2f"|format(item.unit_price) }}</td>
+                                <td>${{ "%.2f"|format(item.cost_price) }}</td>
+                                <td>
+                                    <span class="badge {{ 'bg-danger' if item.quantity == 0 else 'bg-warning' if item.quantity <= item.low_stock_alert else 'bg-success' }}">
+                                        {{ item.quantity }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge {{ 'bg-success' if item.is_active else 'bg-secondary' }}">
+                                        {{ 'Active' if item.is_active else 'Inactive' }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="{{ url_for('inventory.edit_item', item_id=item.id) }}" class="btn btn-outline-primary">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-outline-info" 
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#adjustModal{{ item.id }}">
+                                            <i class="fas fa-plus-minus"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            
+                            <!-- Adjust Inventory Modal -->
+                            <div class="modal fade" id="adjustModal{{ item.id }}" tabindex="-1">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Adjust Inventory - {{ item.name }}</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <form method="POST" action="{{ url_for('inventory.adjust_inventory', item_id=item.id) }}">
+                                            <div class="modal-body">
+                                                <div class="mb-3">
+                                                    <label class="form-label">Current Quantity</label>
+                                                    <input type="text" class="form-control" value="{{ item.quantity }}" readonly>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label">Quantity Change</label>
+                                                    <input type="number" class="form-control" name="quantity_change" 
+                                                           placeholder="Enter positive or negative number" required>
+                                                    <small class="form-text text-muted">Use negative numbers to reduce stock</small>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label">Reason</label>
+                                                    <select class="form-select" name="reason" required>
+                                                        <option value="">Select Reason</option>
+                                                        <option value="Stock received">Stock received</option>
+                                                        <option value="Manual adjustment">Manual adjustment</option>
+                                                        <option value="Damage/Loss">Damage/Loss</option>
+                                                        <option value="Expired">Expired</option>
+                                                        <option value="Return">Return</option>
+                                                        <option value="Other">Other</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                <button type="submit" class="btn btn-primary">Adjust Inventory</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5>Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <a href="{{ url_for('inventory.inventory_logs') }}" class="btn btn-outline-info w-100">
+                            <i class="fas fa-history"></i> View Inventory Logs
+                        </a>
+                    </div>
+                    <div class="col-md-4">
+                        <a href="{{ url_for('reports.inventory_report') }}" class="btn btn-outline-success w-100">
+                            <i class="fas fa-chart-bar"></i> Inventory Report
+                        </a>
+                    </div>
+                    <div class="col-md-4">
+                        <button type="button" class="btn btn-outline-warning w-100">
+                            <i class="fas fa-download"></i> Export Data
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,213 @@
+{% extends "base.html" %}
+
+{% block title %}New Order - Diner POS{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1><i class="fas fa-plus"></i> New Order</h1>
+    </div>
+</div>
+
+<form method="POST" action="{{ url_for('orders.create_order') }}" id="orderForm">
+    <div class="row">
+        <!-- Left Panel - Cart -->
+        <div class="col-md-4">
+            <div class="card sticky-top">
+                <div class="card-header">
+                    <h5><i class="fas fa-shopping-cart"></i> Cart</h5>
+                </div>
+                <div class="card-body">
+                    <!-- Order Type Selection -->
+                    <div class="mb-3">
+                        <label class="form-label">Order Type</label>
+                        <select class="form-select" name="order_type" id="orderType" required>
+                            <option value="">Select Order Type</option>
+                            <option value="DineIn">Dine In</option>
+                            <option value="Takeaway">Takeaway</option>
+                            <option value="Delivery">Delivery</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Table Selection (for Dine In) -->
+                    <div class="mb-3" id="tableSelection" style="display: none;">
+                        <label class="form-label">Table</label>
+                        <select class="form-select" name="table_id" id="tableId">
+                            <option value="">Select Table</option>
+                            {% for table in tables %}
+                            <option value="{{ table.id }}">Table {{ table.number }} ({{ table.seats }} seats)</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <!-- Customer Selection (for Delivery) -->
+                    <div class="mb-3" id="customerSelection" style="display: none;">
+                        <label class="form-label">Customer</label>
+                        <select class="form-select" name="customer_id" id="customerId">
+                            <option value="">Select Customer</option>
+                            {% for customer in customers %}
+                            <option value="{{ customer.id }}">{{ customer.name }} ({{ customer.phone }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <!-- Address Selection (for Delivery) -->
+                    <div class="mb-3" id="addressSelection" style="display: none;">
+                        <label class="form-label">Delivery Address</label>
+                        <select class="form-select" name="address_id" id="addressId">
+                            <option value="">Select Address</option>
+                        </select>
+                    </div>
+                    
+                    <hr>
+                    
+                    <!-- Cart Items -->
+                    <div id="cartItems">
+                        <div class="text-center text-muted py-3">
+                            <i class="fas fa-shopping-cart fa-2x"></i>
+                            <p>Cart is empty</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Cart Summary -->
+                    <div id="cartSummary" style="display: none;">
+                        <hr>
+                        <div class="d-flex justify-content-between">
+                            <span>Subtotal:</span>
+                            <span id="subtotal">$0.00</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span>Discount:</span>
+                            <input type="number" class="form-control form-control-sm d-inline-block" 
+                                   style="width: 80px;" name="discount" id="discount" value="0" min="0" step="0.01">
+                        </div>
+                        <div class="d-flex justify-content-between fw-bold">
+                            <span>Total:</span>
+                            <span id="total">$0.00</span>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary w-100 mt-3">
+                            <i class="fas fa-check"></i> Confirm Order
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Right Panel - Menu Items -->
+        <div class="col-md-8">
+            <!-- Category Tabs -->
+            <ul class="nav nav-tabs" id="categoryTabs" role="tablist">
+                {% for category in categories %}
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link {{ 'active' if loop.first }}" 
+                            id="category-{{ category.id }}-tab" 
+                            data-bs-toggle="tab" 
+                            data-bs-target="#category-{{ category.id }}" 
+                            type="button" role="tab">
+                        {{ category.name }}
+                    </button>
+                </li>
+                {% endfor %}
+            </ul>
+            
+            <!-- Category Content -->
+            <div class="tab-content" id="categoryTabsContent">
+                {% for category in categories %}
+                <div class="tab-pane fade {{ 'show active' if loop.first }}" 
+                     id="category-{{ category.id }}" 
+                     role="tabpanel">
+                    <div class="row g-3 p-3">
+                        {% for item in items %}
+                        {% if item.category_id == category.id %}
+                        <div class="col-md-6 col-lg-4">
+                            <div class="card item-card h-100" data-item-id="{{ item.id }}">
+                                <div class="card-body">
+                                    <h6 class="card-title">{{ item.name }}</h6>
+                                    <p class="card-text">
+                                        <strong>${{ "%.2f"|format(item.unit_price) }}</strong>
+                                        <br>
+                                        <small class="text-muted">Stock: {{ item.quantity }}</small>
+                                    </p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <button type="button" class="btn btn-sm btn-outline-primary add-to-cart"
+                                                data-item-id="{{ item.id }}"
+                                                data-item-name="{{ item.name }}"
+                                                data-item-price="{{ item.unit_price }}"
+                                                data-item-stock="{{ item.quantity }}"
+                                                {{ 'disabled' if item.quantity == 0 }}>
+                                            <i class="fas fa-plus"></i>
+                                        </button>
+                                        <span class="badge bg-secondary cart-quantity" id="qty-{{ item.id }}">0</span>
+                                        <button type="button" class="btn btn-sm btn-outline-danger remove-from-cart"
+                                                data-item-id="{{ item.id }}"
+                                                style="display: none;">
+                                            <i class="fas fa-minus"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</form>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/cart.js') }}"></script>
+<script>
+// Handle order type change
+document.getElementById('orderType').addEventListener('change', function() {
+    const orderType = this.value;
+    const tableSelection = document.getElementById('tableSelection');
+    const customerSelection = document.getElementById('customerSelection');
+    const addressSelection = document.getElementById('addressSelection');
+    
+    // Hide all selections first
+    tableSelection.style.display = 'none';
+    customerSelection.style.display = 'none';
+    addressSelection.style.display = 'none';
+    
+    // Show relevant selections
+    if (orderType === 'DineIn') {
+        tableSelection.style.display = 'block';
+        document.getElementById('tableId').required = true;
+    } else if (orderType === 'Delivery') {
+        customerSelection.style.display = 'block';
+        addressSelection.style.display = 'block';
+        document.getElementById('customerId').required = true;
+        document.getElementById('addressId').required = true;
+    }
+});
+
+// Handle customer change for delivery addresses
+document.getElementById('customerId').addEventListener('change', function() {
+    const customerId = this.value;
+    const addressSelect = document.getElementById('addressId');
+    
+    // Clear existing options
+    addressSelect.innerHTML = '<option value="">Select Address</option>';
+    
+    if (customerId) {
+        // Fetch customer addresses
+        fetch(`/customers/${customerId}/addresses/list`)
+            .then(response => response.json())
+            .then(addresses => {
+                addresses.forEach(address => {
+                    const option = document.createElement('option');
+                    option.value = address.id;
+                    option.textContent = `${address.street}, ${address.city}`;
+                    addressSelect.appendChild(option);
+                });
+            })
+            .catch(error => console.error('Error fetching addresses:', error));
+    }
+});
+</script>
+{% endblock %}

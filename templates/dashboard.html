@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Diner POS{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1><i class="fas fa-home"></i> Dashboard</h1>
+        <p class="text-muted">Welcome back, {{ current_user.full_name }}!</p>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Quick Actions -->
+    <div class="col-md-3">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-plus fa-3x text-primary mb-3"></i>
+                <h5>New Order</h5>
+                <p class="text-muted">Create a new order</p>
+                <a href="{{ url_for('orders.new_order') }}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Start Order
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-list fa-3x text-info mb-3"></i>
+                <h5>View Orders</h5>
+                <p class="text-muted">Manage existing orders</p>
+                <a href="{{ url_for('orders.orders_list') }}" class="btn btn-info">
+                    <i class="fas fa-list"></i> View Orders
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-users fa-3x text-success mb-3"></i>
+                <h5>Customers</h5>
+                <p class="text-muted">Manage customer database</p>
+                <a href="{{ url_for('customers.customers') }}" class="btn btn-success">
+                    <i class="fas fa-users"></i> View Customers
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    {% if current_user.role.value in ['Admin', 'Supervisor'] %}
+    <div class="col-md-3">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-boxes fa-3x text-warning mb-3"></i>
+                <h5>Inventory</h5>
+                <p class="text-muted">Manage stock levels</p>
+                <a href="{{ url_for('inventory.inventory') }}" class="btn btn-warning">
+                    <i class="fas fa-boxes"></i> View Inventory
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+{% if current_user.role.value in ['Admin', 'Supervisor'] %}
+<div class="row mt-4">
+    <div class="col-12">
+        <h3>Quick Stats</h3>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h6 class="text-muted">Today's Orders</h6>
+                        <h4>{{ today_orders or 0 }}</h4>
+                    </div>
+                    <div class="text-primary">
+                        <i class="fas fa-shopping-cart fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h6 class="text-muted">Today's Sales</h6>
+                        <h4>${{ "%.2f"|format(today_sales or 0) }}</h4>
+                    </div>
+                    <div class="text-success">
+                        <i class="fas fa-dollar-sign fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h6 class="text-muted">Low Stock Items</h6>
+                        <h4>{{ low_stock_count or 0 }}</h4>
+                    </div>
+                    <div class="text-danger">
+                        <i class="fas fa-exclamation-triangle fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<div class="row mt-4">
+    <div class="col-12">
+        <h3>Recent Activity</h3>
+        <div class="card">
+            <div class="card-body">
+                <div class="text-center text-muted py-4">
+                    <i class="fas fa-clock fa-3x mb-3"></i>
+                    <p>Recent orders and activities will appear here</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,53 @@
+
+🔄 FOLLOW-UP PROMPT FOR ENHANCING DINER POS SYSTEM (Python Flask)
+
+🎯 OBJECTIVE:
+Review and enhance the existing Python Flask-based Diner POS project to meet the following requirements and resolve current issues. Ensure that all updates align with the existing theme and design aesthetics.
+
+📁 INITIAL INSTRUCTION:
+- Analyze **all files** in the project carefully to understand the current architecture, logic, and missing components.
+- Do **not make assumptions** — follow the structure already defined in the codebase.
+- Respect existing routes, models, and UI frameworks.
+
+---
+
+🚧 ISSUES TO ADDRESS & REQUIREMENTS:
+
+1. **Database Table Integration**
+   - Currently, the system cannot add new tables (restaurant tables). Implement functionality to create new tables in the database and reflect them in the UI.
+   - Add GUI-based table management: each table is represented as a square with rounded corners showing the **table number**.
+
+2. **Customer Management**
+   - New customers **cannot be created** due to a missing template. Implement the `customer_create.html` (or relevant) template following the same theme and structure as the other templates in the project.
+
+3. **Order List Page**
+   - The `order_list.html` template is missing. Implement this page to show all active and historical orders in a clean tabular view.
+   - Add search, filter, and sorting by customer name, date, and status.
+   - Ensure the design is consistent with the overall theme.
+
+4. **UI Enhancements**
+   - Modify the **CSS for headers** of all section cards or blocks to ensure clear hierarchy and consistent spacing.
+   - Use a modern and responsive layout system (Flexbox/Grid preferred) with support for mobile if possible.
+
+---
+
+🎨 DESIGN GUIDELINES
+- All **new templates** must follow the current UI theme (colors, fonts, spacing).
+- Table Plan should have an intuitive interface for adding/removing tables visually.
+- Buttons and inputs must be styled to match existing ones.
+
+---
+
+🛠 TECH STACK CONSTRAINTS
+- Backend: Python Flask (Jinja templates)
+- Frontend: HTML, CSS (Bootstrap if used), JavaScript
+- ORM: SQLAlchemy
+- Database: SQL Server or SQLite (whichever is configured)
+
+---
+
+✅ EXPECTED OUTCOME
+- Working customer creation form
+- Working order list page with real data
+- Visual table plan interface with add table capability
+- All templates styled and themed consistently

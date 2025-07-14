@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block title %}Settings - Diner POS{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1><i class="fas fa-cog"></i> System Settings</h1>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5>General Settings</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('settings.update_settings') }}">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Currency</label>
+                                <select class="form-select" name="currency">
+                                    <option value="USD" {{ 'selected' if settings.currency == 'USD' }}>USD ($)</option>
+                                    <option value="EUR" {{ 'selected' if settings.currency == 'EUR' }}>EUR (€)</option>
+                                    <option value="GBP" {{ 'selected' if settings.currency == 'GBP' }}>GBP (£)</option>
+                                    <option value="SAR" {{ 'selected' if settings.currency == 'SAR' }}>SAR (ر.س)</option>
+                                    <option value="AED" {{ 'selected' if settings.currency == 'AED' }}>AED (د.إ)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Tax Rate (%)</label>
+                                <input type="number" class="form-control" name="tax_rate" 
+                                       value="{{ (settings.tax_rate * 100)|round(2) }}" 
+                                       step="0.01" min="0" max="100">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Default Language</label>
+                                <select class="form-select" name="default_lang">
+                                    <option value="EN" {{ 'selected' if settings.default_lang.value == 'EN' }}>English</option>
+                                    <option value="AR" {{ 'selected' if settings.default_lang.value == 'AR' }}>العربية</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Receipt Note</label>
+                        <textarea class="form-control" name="receipt_note" rows="3" 
+                                  placeholder="Thank you for your visit!">{{ settings.receipt_note }}</textarea>
+                        <small class="form-text text-muted">This note will appear on all receipts</small>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Save Settings
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5>Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('settings.discounts') }}" class="btn btn-outline-primary">
+                        <i class="fas fa-percentage"></i> Manage Discounts
+                    </a>
+                    <a href="{{ url_for('auth.users') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-users-cog"></i> User Management
+                    </a>
+                    <button type="button" class="btn btn-outline-warning">
+                        <i class="fas fa-database"></i> Backup Data
+                    </button>
+                    <button type="button" class="btn btn-outline-danger">
+                        <i class="fas fa-broom"></i> Clear Cache
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5>System Information</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-sm">
+                    <tr>
+                        <td>Version:</td>
+                        <td>1.0.0</td>
+                    </tr>
+                    <tr>
+                        <td>Database:</td>
+                        <td>PostgreSQL</td>
+                    </tr>
+                    <tr>
+                        <td>Current User:</td>
+                        <td>{{ current_user.full_name }}</td>
+                    </tr>
+                    <tr>
+                        <td>Role:</td>
+                        <td>{{ current_user.role.value }}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

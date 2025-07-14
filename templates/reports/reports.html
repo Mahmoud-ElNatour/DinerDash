@@ -1,0 +1,237 @@
+{% extends "base.html" %}
+
+{% block title %}Reports - Diner POS{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1><i class="fas fa-chart-bar"></i> Reports Dashboard</h1>
+        <p class="text-muted">Access various reports and analytics for your restaurant.</p>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Sales Report -->
+    <div class="col-md-6 col-lg-3">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <div class="mb-3">
+                    <i class="fas fa-chart-line fa-3x text-primary"></i>
+                </div>
+                <h5 class="card-title">Sales Report</h5>
+                <p class="card-text">View sales performance over time, track revenue, and analyze order patterns.</p>
+                <a href="{{ url_for('reports.sales_report') }}" class="btn btn-primary">
+                    <i class="fas fa-chart-line"></i> View Sales
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Inventory Report -->
+    <div class="col-md-6 col-lg-3">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <div class="mb-3">
+                    <i class="fas fa-boxes fa-3x text-info"></i>
+                </div>
+                <h5 class="card-title">Inventory Report</h5>
+                <p class="card-text">Monitor stock levels, track low inventory items, and view top-selling products.</p>
+                <a href="{{ url_for('reports.inventory_report') }}" class="btn btn-info">
+                    <i class="fas fa-boxes"></i> View Inventory
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Customer Report -->
+    <div class="col-md-6 col-lg-3">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <div class="mb-3">
+                    <i class="fas fa-users fa-3x text-success"></i>
+                </div>
+                <h5 class="card-title">Customer Report</h5>
+                <p class="card-text">Analyze customer behavior, loyalty points, and membership statistics.</p>
+                <a href="{{ url_for('reports.customers_report') }}" class="btn btn-success">
+                    <i class="fas fa-users"></i> View Customers
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Daily Summary -->
+    <div class="col-md-6 col-lg-3">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <div class="mb-3">
+                    <i class="fas fa-calendar-day fa-3x text-warning"></i>
+                </div>
+                <h5 class="card-title">Daily Summary</h5>
+                <p class="card-text">Get today's performance summary with key metrics and totals.</p>
+                <a href="{{ url_for('reports.daily_summary') }}" class="btn btn-warning">
+                    <i class="fas fa-calendar-day"></i> View Today
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Stats Cards -->
+<div class="row mt-5">
+    <div class="col-12">
+        <h3>Quick Statistics</h3>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h6 class="card-title">Total Orders</h6>
+                        <h4 id="totalOrders">Loading...</h4>
+                    </div>
+                    <div>
+                        <i class="fas fa-shopping-cart fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h6 class="card-title">Total Revenue</h6>
+                        <h4 id="totalRevenue">Loading...</h4>
+                    </div>
+                    <div>
+                        <i class="fas fa-dollar-sign fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h6 class="card-title">Total Customers</h6>
+                        <h4 id="totalCustomers">Loading...</h4>
+                    </div>
+                    <div>
+                        <i class="fas fa-users fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card bg-warning text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h6 class="card-title">Low Stock Items</h6>
+                        <h4 id="lowStockItems">Loading...</h4>
+                    </div>
+                    <div>
+                        <i class="fas fa-exclamation-triangle fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Report Actions -->
+<div class="row mt-5">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5>Report Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="d-grid">
+                            <button type="button" class="btn btn-outline-primary" onclick="exportSalesData()">
+                                <i class="fas fa-download"></i> Export Sales Data
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="d-grid">
+                            <button type="button" class="btn btn-outline-info" onclick="exportInventoryData()">
+                                <i class="fas fa-download"></i> Export Inventory Data
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="d-grid">
+                            <button type="button" class="btn btn-outline-success" onclick="exportCustomerData()">
+                                <i class="fas fa-download"></i> Export Customer Data
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Activity -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5>Recent Activity</h5>
+            </div>
+            <div class="card-body">
+                <div class="text-center text-muted py-4">
+                    <i class="fas fa-chart-bar fa-3x mb-3"></i>
+                    <p>Select a report above to view detailed analytics</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Load quick statistics
+    loadQuickStats();
+});
+
+function loadQuickStats() {
+    // These would normally be loaded via AJAX calls to the backend
+    // For now, showing placeholder text
+    document.getElementById('totalOrders').textContent = 'View Reports';
+    document.getElementById('totalRevenue').textContent = 'View Reports';
+    document.getElementById('totalCustomers').textContent = 'View Reports';
+    document.getElementById('lowStockItems').textContent = 'View Reports';
+}
+
+function exportSalesData() {
+    // This would typically generate and download a CSV/Excel file
+    alert('Sales data export functionality would be implemented here');
+}
+
+function exportInventoryData() {
+    // This would typically generate and download a CSV/Excel file
+    alert('Inventory data export functionality would be implemented here');
+}
+
+function exportCustomerData() {
+    // This would typically generate and download a CSV/Excel file
+    alert('Customer data export functionality would be implemented here');
+}
+</script>
+{% endblock %}

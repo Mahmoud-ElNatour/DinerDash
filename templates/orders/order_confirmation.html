@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}Order Confirmation - Diner POS{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h4><i class="fas fa-check-circle"></i> Order Confirmed</h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Order Details</h6>
+                        <table class="table table-sm">
+                            <tr>
+                                <td><strong>Order ID:</strong></td>
+                                <td>{{ order.id }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Date:</strong></td>
+                                <td>{{ order.date.strftime('%Y-%m-%d %H:%M') }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Order Type:</strong></td>
+                                <td>{{ order.order_type.value }}</td>
+                            </tr>
+                            {% if order.table %}
+                            <tr>
+                                <td><strong>Table:</strong></td>
+                                <td>{{ order.table.number }}</td>
+                            </tr>
+                            {% endif %}
+                            {% if order.customer %}
+                            <tr>
+                                <td><strong>Customer:</strong></td>
+                                <td>{{ order.customer.name }}</td>
+                            </tr>
+                            {% endif %}
+                            <tr>
+                                <td><strong>Waiter:</strong></td>
+                                <td>{{ order.user.full_name }}</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Order Summary</h6>
+                        <table class="table table-sm">
+                            <tr>
+                                <td><strong>Subtotal:</strong></td>
+                                <td>${{ "%.2f"|format(order.total) }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Discount:</strong></td>
+                                <td>-${{ "%.2f"|format(order.discount) }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Total:</strong></td>
+                                <td><strong>${{ "%.2f"|format(order.final_total) }}</strong></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                
+                <hr>
+                
+                <h6>Items Ordered</h6>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th>Quantity</th>
+                                <th>Unit Price</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in order.items %}
+                            <tr>
+                                <td>{{ item.item.name }}</td>
+                                <td>{{ item.quantity }}</td>
+                                <td>${{ "%.2f"|format(item.price) }}</td>
+                                <td>${{ "%.2f"|format(item.total) }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="text-center mt-4">
+                    <a href="{{ url_for('orders.payment', order_id=order.id) }}" class="btn btn-primary btn-lg">
+                        <i class="fas fa-credit-card"></i> Proceed to Payment
+                    </a>
+                    <a href="{{ url_for('orders.new_order') }}" class="btn btn-secondary btn-lg">
+                        <i class="fas fa-plus"></i> New Order
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
