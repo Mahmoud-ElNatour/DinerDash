@@ -1,0 +1,211 @@
+
+✅ OBJECTIVE
+Build a full-featured POS system for a diner using Python Flask and SQLAlchemy (with PostgreSQL or MySQL). The system should support dine-in (with table structure), takeaway, and delivery. It must include:
+- Inventory management
+- Customer loyalty (points/rewards)
+- Discount handling
+- Secure user roles (Admin, Supervisor, Waiter)
+- Receipt generation (PDF)
+- Multilingual support (EN/AR)
+- Configurable settings (currency, tax, etc.)
+
+🧩 CORE FEATURES OVERVIEW
+- Dine-in with table layout and assignment
+- Takeaway and delivery workflows
+- Customer management with saved addresses
+- Order confirmation saves to Orders table
+- Payment confirmation saves to Bills table
+- Inventory tracking and adjustments
+- Loyalty and reward points
+- Discount and promotional handling
+- Multi-language UI support (EN/AR)
+- Receipt printing or PDF export after payment
+- Settings screen (currency, tax percentage, etc.)
+- Role-based access control
+
+🏗 ARCHITECTURE
+- Backend Framework: Flask
+- ORM: SQLAlchemy
+- Templating: Jinja2
+- Frontend: HTML/CSS/JS (Bootstrap), Optional Vue.js for interactivity
+- Structure:
+  - core (Entities/Models)
+  - infrastructure (Database config, Repositories)
+  - services (Business Logic)
+  - routes (Flask Blueprints)
+  - templates (Jinja2 Views)
+  - static (CSS, JS, images)
+  - utils (Helpers, PDF export, etc.)
+
+🧾 ENTITIES TO IMPLEMENT
+
+1. USER
+| Field        | Type      |
+|--------------|-----------|
+| id           | int (PK)  |
+| full_name    | string    |
+| username     | string    |
+| password_hash| string    |
+| role         | enum      | (Admin, Supervisor, Waiter)
+| is_active    | bool      |
+
+2. CUSTOMER
+| Field        | Type     |
+|--------------|----------|
+| id           | int (PK) |
+| name         | string   |
+| phone        | string   |
+| email        | string   |
+| points       | int      |
+| total_spent  | decimal  |
+| membership   | enum     | (Silver, Gold, VIP)
+
+3. CUSTOMER_ADDRESS
+| Field     | Type     |
+|-----------|----------|
+| id        | int (PK) |
+| customer_id| int (FK)|
+| street    | string   |
+| city      | string   |
+| notes     | string   |
+
+4. TABLE
+| Field   | Type     |
+|---------|----------|
+| id      | int (PK) |
+| number  | string   |
+| seats   | int      |
+| status  | enum     | (Available, Occupied)
+
+5. CATEGORY
+| Field   | Type     |
+|---------|----------|
+| id      | int (PK) |
+| name    | string   |
+
+6. ITEM
+| Field          | Type     |
+|----------------|----------|
+| id             | int (PK) |
+| name           | string   |
+| barcode        | string   |
+| category_id    | int (FK) |
+| unit_price     | decimal  |
+| cost_price     | decimal  |
+| quantity       | int      |
+| low_stock_alert| int      |
+| is_active      | bool     |
+
+7. SALES_ORDER
+| Field         | Type      |
+|---------------|-----------|
+| id            | int (PK)  |
+| customer_id   | int (FK)  |
+| user_id       | int (FK)  |
+| order_type    | enum      | (DineIn, Takeaway, Delivery)
+| table_id      | int (FK)  |
+| address_id    | int (FK)  |
+| date          | datetime  |
+| total         | decimal   |
+| discount      | decimal   |
+| final_total   | decimal   |
+| payment_method| string    |
+
+8. SALES_ORDER_ITEM
+| Field     | Type     |
+|-----------|----------|
+| id        | int (PK) |
+| order_id  | int (FK) |
+| item_id   | int (FK) |
+| quantity  | int      |
+| price     | decimal  |
+| total     | decimal  |
+
+9. DISCOUNT
+| Field       | Type     |
+|-------------|----------|
+| id          | int (PK) |
+| type        | enum     | (Fixed, Percentage)
+| value       | decimal  |
+| min_purchase| decimal  |
+| start_date  | datetime |
+| end_date    | datetime |
+| is_active   | bool     |
+
+10. INVENTORY_LOG
+| Field         | Type     |
+|---------------|----------|
+| id            | int (PK) |
+| item_id       | int (FK) |
+| quantity_diff | int      |
+| reason        | string   |
+| user_id       | int (FK) |
+| date          | datetime |
+
+11. BILL
+| Field         | Type     |
+|---------------|----------|
+| id            | int (PK) |
+| order_id      | int (FK) |
+| payment_date  | datetime |
+| payment_method| string   |
+| total_paid    | decimal  |
+| receipt_path  | string   |
+| currency      | string   |
+| tax_applied   | decimal  |
+| is_printed    | bool     |
+
+12. SETTINGS
+| Field        | Type     |
+|--------------|----------|
+| id           | int (PK) |
+| currency     | string   |
+| tax_rate     | decimal  |
+| default_lang | enum     | (EN, AR)
+| receipt_note | string   |
+
+🚀 ORDER & PAYMENT FLOW
+
+1. Start Order ➡ Select Order Type (Dine-in, Takeaway, Delivery)
+2. If Delivery:
+   - Select or register Customer
+   - Add or choose Address
+3. Navigate to Ordering Page:
+   - Right: Item categories as cards
+   - Left: Live Cart (items, qty, total)
+   - Apply Discount or Redeem Points
+4. Confirm Order:
+   - Save to SALES_ORDER and SALES_ORDER_ITEM tables
+   - Table assignment if dine-in
+5. Proceed to Payment:
+   - Choose payment method (cash, card...)
+   - Enter received amount
+   - Save to BILL table
+   - Generate PDF receipt and option to print
+
+🖼 UI DESIGN SUGGESTIONS
+- EN/AR language toggle
+- Rounded item cards with image + price
+- Left cart panel for selected items
+- Bottom summary (Subtotal, Tax, Total)
+- Modal preview for receipt (print/export)
+- Settings page for currency/tax/lang
+
+🛡 USER ROLE PERMISSIONS
+
+| Feature                    | Admin | Supervisor | Waiter |
+|----------------------------|-------|------------|--------|
+| User Management            | ✅    | ❌         | ❌     |
+| Discounts & Settings       | ✅    | ✅         | ❌     |
+| Inventory Control          | ✅    | ✅         | ❌     |
+| Create/View Orders         | ✅    | ✅         | ✅     |
+| Process Payments           | ✅    | ✅         | ✅     |
+| View Reports               | ✅    | ✅         | ❌     |
+| Print/Export Receipts      | ✅    | ✅         | ✅     |
+
+📊 REPORTING FEATURES
+- Daily/weekly/monthly sales summaries
+- Inventory low stock alerts
+- Top customers and loyalty levels
+- Item sales stats (most/least sold)
+- PDF export for reports
