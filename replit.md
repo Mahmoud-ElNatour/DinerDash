@@ -40,6 +40,16 @@ Preferred communication style: Simple, everyday language.
 - Default admin account: username=admin, password=admin123
 - Session management with Flask sessions
 
+### Professional POS System (IRS-Style)
+- **Professional Sales Screen**: Three-panel layout inspired by IRS POS system
+- **Left Panel**: Product search, category filtering, quick access items
+- **Center Panel**: Shopping cart with real-time calculations and payment processing
+- **Right Panel**: Customer management, order info, and recent transactions
+- **Advanced Features**: Barcode scanning support, customer loyalty points, membership levels
+- **Payment Processing**: Multiple payment methods (cash, card) with change calculation
+- **Real-time Updates**: Live inventory checking, automatic stock deduction
+- **Customer Management**: Quick customer addition, loyalty tracking, membership benefits
+
 ### Order Management System
 - Multi-type order support (dine-in with table assignment, takeaway, delivery)
 - **Enhanced Table Ordering**: Split-screen interface with menu selection and cart management
@@ -100,6 +110,17 @@ Preferred communication style: Simple, everyday language.
 5. Confirm button creates order and marks table as occupied
 6. Pay button processes payment and frees up table
 7. Order status automatically updates throughout the process
+
+### Professional POS Sales Flow (IRS-Style)
+1. Access professional sales screen via "POS Terminal" navigation
+2. Search products by name or barcode using left panel
+3. Filter by category or use quick access buttons for popular items
+4. Add items to cart with automatic price calculation and stock validation
+5. Select customer and order type (dine-in, takeaway, delivery)
+6. Apply discounts and view tax calculations in real-time
+7. Process payment with multiple methods (cash with change calculation, card)
+8. Generate receipt and update inventory automatically
+9. Customer loyalty points and membership levels updated automatically
 
 ## External Dependencies
 
