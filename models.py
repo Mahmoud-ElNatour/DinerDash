@@ -15,6 +15,12 @@ class OrderType(Enum):
     TAKEAWAY = 'Takeaway'
     DELIVERY = 'Delivery'
 
+class OrderStatus(Enum):
+    PENDING = 'Pending'
+    CONFIRMED = 'Confirmed'
+    PAID = 'Paid'
+    CANCELLED = 'Cancelled'
+
 class TableStatus(Enum):
     AVAILABLE = 'Available'
     OCCUPIED = 'Occupied'
@@ -144,6 +150,7 @@ class SalesOrder(db.Model):
     discount = db.Column(Numeric(10, 2), default=0.00)
     final_total = db.Column(Numeric(10, 2), nullable=False)
     payment_method = db.Column(db.String(50))
+    status = db.Column(db.Enum(OrderStatus), default=OrderStatus.PENDING)
     
     # Relationships
     items = db.relationship('SalesOrderItem', backref='order', lazy=True)

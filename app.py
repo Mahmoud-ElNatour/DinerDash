@@ -4,7 +4,7 @@ from flask import Flask, session, request, g
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
 from werkzeug.middleware.proxy_fix import ProxyFix
-from flask_login import current_user
+from flask_login import LoginManager, current_user
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -13,6 +13,7 @@ class Base(DeclarativeBase):
     pass
 
 db = SQLAlchemy(model_class=Base)
+login_manager = LoginManager()
 
 # Create the app
 app = Flask(__name__)
@@ -28,6 +29,13 @@ app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
 
 # Initialize extensions
 db.init_app(app)
+login_manager.init_app(app)
+login_manager.login_view = 'auth.login'
+
+@login_manager.user_loader
+def load_user(user_id):
+    from models import User
+    return User.query.get(user_id)
 
 # Language support
 @app.before_request
@@ -36,10 +44,6 @@ def before_request():
     if 'lang' not in session:
         session['lang'] = 'en'
     g.lang = session['lang']
-
-# Register Replit Auth blueprint
-from replit_auth import make_replit_blueprint
-app.register_blueprint(make_replit_blueprint(), url_prefix="/auth")
 
 # Register other blueprints
 from routes.auth import auth_bp
@@ -50,7 +54,7 @@ from routes.settings import settings_bp
 from routes.reports import reports_bp
 from routes.tables import tables_bp
 
-app.register_blueprint(auth_bp, url_prefix='/admin')  # Changed to /admin for user management
+app.register_blueprint(auth_bp, url_prefix='/auth')
 app.register_blueprint(orders_bp, url_prefix='/orders')
 app.register_blueprint(inventory_bp, url_prefix='/inventory')
 app.register_blueprint(customers_bp, url_prefix='/customers')
@@ -69,7 +73,7 @@ def dashboard():
     from flask import render_template, redirect, url_for
     
     if not current_user.is_authenticated:
-        return render_template('landing.html')
+        return redirect(url_for('auth.login'))
     
     return render_template('dashboard.html')
 

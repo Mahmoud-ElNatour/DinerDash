@@ -1,7 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session, jsonify
-from flask_login import current_user
-from replit_auth import require_login
-from models import SalesOrder, SalesOrderItem, Item, Category, Table, Customer, CustomerAddress, Settings, TableStatus, OrderType
+from flask_login import login_required, current_user
+from models import SalesOrder, SalesOrderItem, Item, Category, Table, Customer, CustomerAddress, Settings, TableStatus, OrderType, OrderStatus
 from app import db
 from datetime import datetime
 from decimal import Decimal
@@ -10,13 +9,13 @@ from utils.pdf_generator import generate_receipt
 orders_bp = Blueprint('orders', __name__)
 
 @orders_bp.route('/')
-@require_login
+@login_required
 def orders_list():
     orders = SalesOrder.query.order_by(SalesOrder.date.desc()).all()
     return render_template('orders/orders_list.html', orders=orders)
 
 @orders_bp.route('/new')
-@require_login
+@login_required
 def new_order():
     categories = Category.query.all()
     items = Item.query.filter_by(is_active=True).all()
@@ -30,7 +29,7 @@ def new_order():
                          customers=customers)
 
 @orders_bp.route('/create', methods=['POST'])
-@require_login
+@login_required
 def create_order():
     try:
         # Get form data
@@ -81,7 +80,8 @@ def create_order():
             total=subtotal,
             discount=discount,
             final_total=final_total_with_tax,
-            date=datetime.utcnow()
+            date=datetime.utcnow(),
+            status=OrderStatus.PENDING
         )
         
         db.session.add(order)
@@ -119,19 +119,19 @@ def create_order():
         return redirect(url_for('orders.new_order'))
 
 @orders_bp.route('/confirmation/<int:order_id>')
-@require_login
+@login_required
 def order_confirmation(order_id):
     order = SalesOrder.query.get_or_404(order_id)
     return render_template('orders/order_confirmation.html', order=order)
 
 @orders_bp.route('/payment/<int:order_id>')
-@require_login
+@login_required
 def payment(order_id):
     order = SalesOrder.query.get_or_404(order_id)
     return render_template('orders/payment.html', order=order)
 
 @orders_bp.route('/process_payment/<int:order_id>', methods=['POST'])
-@require_login
+@login_required
 def process_payment(order_id):
     from models import Bill
     from utils.pdf_generator import generate_receipt
@@ -157,8 +157,9 @@ def process_payment(order_id):
         payment_date=datetime.utcnow()
     )
     
-    # Update order with payment method
+    # Update order with payment method and status
     order.payment_method = payment_method
+    order.status = OrderStatus.PAID
     
     db.session.add(bill)
     db.session.commit()
@@ -192,13 +193,13 @@ def process_payment(order_id):
     return redirect(url_for('orders.receipt', order_id=order.id))
 
 @orders_bp.route('/receipt/<int:order_id>')
-@require_login
+@login_required
 def receipt(order_id):
     order = SalesOrder.query.get_or_404(order_id)
     return render_template('orders/receipt.html', order=order)
 
 @orders_bp.route('/get_item_details/<int:item_id>')
-@require_login
+@login_required
 def get_item_details(item_id):
     item = Item.query.get_or_404(item_id)
     return jsonify({
