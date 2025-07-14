@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session, jsonify
 from flask_login import login_required, current_user
-from models import SalesOrder, SalesOrderItem, Item, Category, Table, Customer, CustomerAddress, Settings, TableStatus
+from models import SalesOrder, SalesOrderItem, Item, Category, Table, Customer, CustomerAddress, Settings, TableStatus, OrderType
 from app import db
 from datetime import datetime
 from decimal import Decimal
@@ -74,7 +74,7 @@ def create_order():
         order = SalesOrder(
             customer_id=customer_id if customer_id else None,
             user_id=current_user.id,
-            order_type=order_type,
+            order_type=OrderType[order_type.upper()],
             table_id=table_id if table_id else None,
             address_id=address_id if address_id else None,
             total=subtotal,
@@ -103,7 +103,7 @@ def create_order():
         # Update table status if dine-in
         if order_type == 'DineIn' and table_id:
             table = Table.query.get(table_id)
-            table.status = 'Occupied'
+            table.status = TableStatus.OCCUPIED
         
         db.session.commit()
         

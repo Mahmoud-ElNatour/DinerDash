@@ -22,7 +22,7 @@ def new_customer():
             email=request.form['email'],
             points=int(request.form.get('points', 0)),
             total_spent=0,
-            membership=MembershipLevel[request.form.get('membership', 'SILVER')]
+            membership=MembershipLevel[request.form.get('membership', 'SILVER').upper()]
         )
         db.session.add(customer)
         db.session.commit()
