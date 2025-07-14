@@ -93,9 +93,13 @@ def pos_screen():
     
     # Get recent orders from today
     today = datetime.now().date()
-    recent_orders = SalesOrder.query.filter(
-        SalesOrder.date >= today
-    ).order_by(SalesOrder.date.desc()).limit(10).all()
+    try:
+        recent_orders = SalesOrder.query.filter(
+            SalesOrder.date >= today
+        ).order_by(SalesOrder.date.desc()).limit(10).all()
+    except Exception as e:
+        # Handle case where status column might not exist yet
+        recent_orders = []
     
     return render_template('pos/sales_screen.html',
                          categories=categories,
