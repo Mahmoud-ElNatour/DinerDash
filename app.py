@@ -330,52 +330,54 @@ with app.app_context():
     import models
     db.create_all()
     
-    # Create default admin user if not exists
+    # Create seed data unless disabled for testing
     from models import User, Settings, UserRole, Language, Table, TableStatus, Category, Item
     from werkzeug.security import generate_password_hash
-    
-    if not User.query.filter_by(username='admin').first():
-        admin_user = User(
-            full_name='System Administrator',
-            username='admin',
-            password_hash=generate_password_hash('admin123'),
-            role=UserRole.ADMIN,
-            is_active=True
-        )
-        db.session.add(admin_user)
-    
-    # Create default settings if not exists
-    if not Settings.query.first():
-        default_settings = Settings(
-            currency='USD',
-            tax_rate=0.10,
-            default_lang=Language.EN,
-            receipt_note='Thank you for your visit!'
-        )
-        db.session.add(default_settings)
-    
-    # Create sample tables if none exist
-    if not Table.query.first():
-        sample_tables = [
-            Table(number='1', seats=2, status=TableStatus.AVAILABLE),
-            Table(number='2', seats=4, status=TableStatus.AVAILABLE),
-            Table(number='3', seats=6, status=TableStatus.AVAILABLE),
-            Table(number='4', seats=2, status=TableStatus.AVAILABLE),
-            Table(number='5', seats=8, status=TableStatus.AVAILABLE),
-            Table(number='6', seats=4, status=TableStatus.AVAILABLE),
-        ]
-        for table in sample_tables:
-            db.session.add(table)
-    
-    # Create sample categories if none exist
-    if not Category.query.first():
-        sample_categories = [
-            Category(name='Appetizers'),
-            Category(name='Main Dishes'),
-            Category(name='Desserts'),
-            Category(name='Beverages'),
-        ]
-        for category in sample_categories:
-            db.session.add(category)
+
+    if not os.environ.get('SKIP_BOOTSTRAP'):
+        # Create default admin user if not exists
+        if not User.query.filter_by(username='admin').first():
+            admin_user = User(
+                full_name='System Administrator',
+                username='admin',
+                password_hash=generate_password_hash('admin123'),
+                role=UserRole.ADMIN,
+                is_active=True
+            )
+            db.session.add(admin_user)
+
+        # Create default settings if not Settings exists
+        if not Settings.query.first():
+            default_settings = Settings(
+                currency='USD',
+                tax_rate=0.10,
+                default_lang=Language.EN,
+                receipt_note='Thank you for your visit!'
+            )
+            db.session.add(default_settings)
+
+        # Create sample tables if none exist
+        if not Table.query.first():
+            sample_tables = [
+                Table(number='1', seats=2, status=TableStatus.AVAILABLE),
+                Table(number='2', seats=4, status=TableStatus.AVAILABLE),
+                Table(number='3', seats=6, status=TableStatus.AVAILABLE),
+                Table(number='4', seats=2, status=TableStatus.AVAILABLE),
+                Table(number='5', seats=8, status=TableStatus.AVAILABLE),
+                Table(number='6', seats=4, status=TableStatus.AVAILABLE),
+            ]
+            for table in sample_tables:
+                db.session.add(table)
+
+        # Create sample categories if none exist
+        if not Category.query.first():
+            sample_categories = [
+                Category(name='Appetizers'),
+                Category(name='Main Dishes'),
+                Category(name='Desserts'),
+                Category(name='Beverages'),
+            ]
+            for category in sample_categories:
+                db.session.add(category)
     
     db.session.commit()

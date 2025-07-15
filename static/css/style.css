@@ -331,3 +331,12 @@
         color: #000 !important;
     }
 }
+/* Extra small screen tweaks */
+@media (max-width: 576px) {
+    .dashboard-card .card-body {
+        padding: 1rem;
+    }
+    .navbar-brand {
+        font-size: 1rem;
+    }
+}

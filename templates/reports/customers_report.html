@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Customers Report{% endblock %}
+{% block content %}
+<div class="container-fluid">
+  <div class="row mb-3">
+    <div class="col-12">
+      <h1 class="h3"><i class="fas fa-users"></i> Customers Report</h1>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body">
+          <h5>Top Customers</h5>
+          <ul>
+            {% for c in top_customers %}
+            <li>{{ c.name }} - {{ c.total_spent }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
