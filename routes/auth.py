@@ -64,3 +64,10 @@ def toggle_user(user_id):
     db.session.commit()
     flash(f'User {"activated" if user.is_active else "deactivated"} successfully', 'success')
     return redirect(url_for('auth.users'))
+
+@auth_bp.route('/check_session', methods=['POST'])
+def check_session():
+    """Endpoint used by client script to verify active session."""
+    if current_user.is_authenticated:
+        return '', 204
+    return '', 401
